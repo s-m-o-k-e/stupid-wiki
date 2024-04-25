@@ -102,30 +102,85 @@ who uses these anyway?
 
 #### blocks
 
-follows the format:  
-*ID : {
-    "opcode": opcode,  
-    "next":IDofNext,  
-    "parents": IDofParent,  
-    "inputs": inputs,  
-    "fields": fields,  
-    "shadow" : shadow,  
-    "topLevel" : topLevel,  
-     }*  
-if it is "topLevel",
-ID will also contain:  
-*"x":x,  
-"y":y*
+each block has a id as a key and several children  
 
-if "opcode" is "procedures_prototype"
-ID will also contain:  
-*"mutation":mutation*
-  
-* *ID* is string  
-* *opcode* is string (pls look at their github for opcodes i dont want to make a full table for that)   
-* *IDofNext* is the ID of the next block or null
-* *IDofParent* is the ID of the last block or null
-* *inputs* is Json
-* *fields* is Json
-* *shadow* is bool
-* *topLevel* is bool
+| Child      | Type                          | Discription                                                       |
+| ---------- | ----------------------------- | ----------------------------------------------------------------- |
+| "opcode"   | String                        | the code for the type of block                                    |
+| "next"     | String                        | the id of the next block (or null)                                |
+| "parents"  | String                        | id of the last block (or null)                                    |
+| "inputs"   | Json  (optional if no inputs) | one key value pair for each input to the block                    |
+| "fields"   | Json                          | dropdown inputs to the block              (optional if no fields) |
+| "shadow"   | Bool                          | if the block is "shadowed" aka cant be moved by cursor (optional for not procedure-protypes) |
+| "topLevel" | Bool                          | if it is a hat block       (optional for non-hats)                |
+| "x"        | int/float?                    | only if topLevel is true              (optional)                  |
+| "y"        | int/float?                    | only if topLevel is true                   (optional)             |
+| "mutation" | Json                          | only if opcode is "procedures_protoype" or "procedure_call"       |
+
+once again, of these, 3 are not leaf nodes:
+
+##### inputs
+
+| Child       | Type | Discription                                              |
+| ----------- | ---- | -------------------------------------------------------- |
+| "CONDITION" | List | only for if-else and if-then.                            |
+| "SUBSTACK"  | List | for enclosing blocks like repeats, forever, and if-then. |
+| "SUBSTACK2" | List | only for if-else.                                        |
+| "VALUE"     | List | for set/change variable?                                 |
+| "STRING"    | List | for any string input?                                    |
+| "ITEM"      | List | for list functions                                       |
+| "OPERAND"   | List | for bool blocks with 1 input (not only?)                 |
+| "OPERAND1"  | List | for bool blocks with 2 inputs                            |
+| "OPERAND2"  | List | for bool blocks with 2 inputs                            |
+| "NUM1"      | List | for math operations                                      |
+| "NUM2"      | List | for math operations                                      |
+| "INDEX"     | List | location in a list. can be "random", "last" or "all" too |
+| "LETTER"    | List | for letter_of block                                      |
+| "DURATION"  | List | for wait_seconds block                                   |
+| "SECS"      | List | for say/think for _                                      |
+| "MESSAGE    | List | for say/think                                            |
+| "EFFECT"    | List | for effects dropdown                                     |
+| "CHANGE"    | List | for change ___ by                                        |
+| "SIZE"      | List | for set size                                             |
+| "COSTUME"   | List | costume number                                           |
+
+for each of these they have the value:  
+*InputType: [shadowtype, id/array_repersentation, (secondary id/list_repersentation if shadowtype 3)]*  
+
+shadowtype: 1 if the input is a shadow, 2 if there is no shadow, and 3 if there is a shadow but it is obscured by the input.  
+
+id/array_repersentation:  
+Can either be a block id (like a operator) or a array repersenting a value  
+
+| Type             | 1st element | 2nd element                                                  | 3rd element | 4th element                | 5th element                |
+| ---------------- | ----------- | ------------------------------------------------------------ | ----------- | -------------------------- | -------------------------- |
+| Number           | 4           | value                                                        |             |                            |                            |
+| Positive number  | 5           | value                                                        |             |                            |                            |
+| Positive integer | 6           | value                                                        |             |                            |                            |
+| Integer          | 7           | value                                                        |             |                            |                            |
+| Angle            | 8           | value                                                        |             |                            |                            |
+| Color            | 9           | "#" followed by a hexadecimal numeral representing the color |             |                            |                            |
+| String           | 10          | value                                                        |             |                            |                            |
+| Broadcast        | 11          | name                                                         | id          |                            |                            |
+| Variable         | 12          | name                                                         | id          | x-coordinate, if top-level | y-coordinate, if top-level |
+| List             | 13          | name                                                         | id          | x-coordinate, if top-level | y-coordinate, if top-level |
+
+##### fields
+
+dropdowns WIP  
+
+| Child                 | Type | Discription                                                                           | Format             |
+| --------------------- | ---- | ------------------------------------------------------------------------------------- | ------------------ |
+| "VALUE"               | List | for "argument_reporter_string_number"                                                 | [String, null]     |
+| "LIST"                | List | for list blocks                                                                       | [listname, listid] |
+| "VARIABLE"            | List | for variable blocks                                                                   | [varname, varid]   |
+| "BROADCAST_OPTION"    | List | for broadcasts                                                                        | [dont know]        |
+| "STOP_OPTION"         | List | for stop_ block. typeofstop can be "all", "this script", or "other scripts in sprite" | [typeofstop, null] |
+| "CLONE_OPTION"        | List | for clone block                                                                       | [dont know yet]    |
+| "TOUCHINGOBJECTMENU"  | List | for touching block. can be "\_mouse\_" or "\_edge\_"                                  | [dont know]        |
+| "BACKDROP"            | List | for set backdrop                                                                      | dontknow           |
+| "WHENGREATERTHANMENU" | List | for when _ > input hat                                                                | dontknow           |
+| "BROADCAST_INPUT"     | List | for broadcasts                                                                        | idk                |
+| "KEY_OPTION"          | List | for when key pressed and if key pressed                                               | idk                |
+
+theres many more but im bored for now
